@@ -1,0 +1,601 @@
+-- ============================================================
+-- CAMPUS CONNECT - COMPLETE SQL REFERENCE
+-- MySQL 8.0
+-- ============================================================
+
+CREATE DATABASE IF NOT EXISTS campus_connect;
+USE campus_connect;
+
+
+-- ============================================================
+-- 1. DEPARTMENTS TABLE
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS departments (
+    dept_id INT AUTO_INCREMENT PRIMARY KEY,
+    dept_name VARCHAR(150) NOT NULL,
+    dept_code VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- ============================================================
+-- 2. SECTIONS TABLE
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS sections (
+    section_id INT AUTO_INCREMENT PRIMARY KEY,
+    dept_id INT NOT NULL,
+    section_name CHAR(1) NOT NULL,
+    section_order INT,
+    academic_year INT DEFAULT 2,
+    student_capacity INT DEFAULT 60
+);
+
+
+-- ============================================================
+-- 3. SUBJECTS TABLE
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS subjects (
+    subject_id INT AUTO_INCREMENT PRIMARY KEY,
+    dept_id INT NOT NULL,
+    subject_code VARCHAR(30) NOT NULL UNIQUE,
+    subject_name VARCHAR(150) NOT NULL,
+    subject_order INT
+);
+
+
+-- ============================================================
+-- 4. STUDENTS TABLE
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS students (
+    student_id INT AUTO_INCREMENT PRIMARY KEY,
+    student_code VARCHAR(30),
+    roll_number VARCHAR(30),
+    student_name VARCHAR(100) NOT NULL,
+    dept_id INT NOT NULL,
+    section_id INT,
+    year_of_study INT DEFAULT 2,
+    semester INT DEFAULT 3,
+    mobile_number VARCHAR(20)
+);
+
+
+-- ============================================================
+-- 5. FACULTY TABLE
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS faculty (
+    faculty_id INT AUTO_INCREMENT PRIMARY KEY,
+    faculty_name VARCHAR(100) NOT NULL,
+    dept_id INT NOT NULL,
+    designation VARCHAR(100),
+    email VARCHAR(100),
+    mobile_number VARCHAR(20)
+);
+
+
+-- ============================================================
+-- 6. USER ACCOUNTS TABLE
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS user_accounts (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    role ENUM(
+        'STUDENT',
+        'FACULTY',
+        'HOD',
+        'OPERATOR',
+        'ADMIN'
+    ) NOT NULL,
+    student_id INT UNIQUE NULL,
+    faculty_id INT UNIQUE NULL,
+    is_active TINYINT(1) DEFAULT 1
+);
+
+
+-- ============================================================
+-- 7. ATTENDANCE TABLE
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS attendance (
+    attendance_id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    subject_id INT NOT NULL,
+    total_classes INT NOT NULL DEFAULT 0,
+    attended_classes INT NOT NULL DEFAULT 0,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+-- ============================================================
+-- 8. FACULTY ANNOUNCEMENTS TABLE
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS faculty_announcements (
+    announcement_id INT AUTO_INCREMENT PRIMARY KEY,
+    faculty_id INT NOT NULL,
+    dept_id INT NOT NULL,
+    year_of_study INT NULL,
+    subject_id INT NULL,
+    title VARCHAR(200) NOT NULL,
+    message TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- ============================================================
+-- 9. CLUBS TABLE
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS clubs (
+    club_id INT AUTO_INCREMENT PRIMARY KEY,
+    club_name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT,
+    coordinator VARCHAR(100),
+    is_active TINYINT(1) DEFAULT 1
+);
+
+
+-- ============================================================
+-- 10. EVENTS TABLE
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS events (
+    event_id INT AUTO_INCREMENT PRIMARY KEY,
+    event_name VARCHAR(150) NOT NULL,
+    description TEXT,
+    event_date DATE,
+    venue VARCHAR(150),
+    created_by INT,
+    is_active TINYINT(1) DEFAULT 1
+);
+
+
+-- ============================================================
+-- 11. CLUB MEMBERSHIPS TABLE
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS club_memberships (
+    membership_id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    club_id INT NOT NULL,
+    membership_type VARCHAR(30)
+);
+
+
+-- ============================================================
+-- 12. EVENT REGISTRATIONS TABLE
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS event_registrations (
+    registration_id INT AUTO_INCREMENT PRIMARY KEY,
+    event_id INT NOT NULL,
+    student_id INT NOT NULL,
+    registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- ============================================================
+-- 13. FEEDBACK TABLE
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS feedback (
+    feedback_id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    feedback_message TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- ============================================================
+-- 14. DEPARTMENT INSERT EXAMPLE
+-- Existing departments are already populated.
+-- Do not uncomment and execute again on your current database.
+-- ============================================================
+
+-- INSERT INTO departments (dept_id, dept_name, dept_code)
+-- VALUES
+-- (1, 'Computer Science and Engineering', 'CSE'),
+-- (2, 'CSE Artificial Intelligence and Machine Learning', 'AIML'),
+-- (3, 'CSE Data Science', 'DS'),
+-- (4, 'CSE Cyber Security', 'CYBER'),
+-- (5, 'CSE Internet of Things', 'IOT'),
+-- (6, 'Artificial Intelligence', 'AI');
+
+
+-- ============================================================
+-- 15. FACULTY ANNOUNCEMENT INSERT EXAMPLES
+-- ============================================================
+
+-- Subject-specific announcement:
+-- INSERT INTO faculty_announcements
+-- (faculty_id, dept_id, year_of_study, subject_id, title, message)
+-- VALUES
+-- (1, 6, 2, 31, 'Internal Cancelled',
+--  'Please check the latest department update.');
+
+-- General announcement for all years:
+-- INSERT INTO faculty_announcements
+-- (faculty_id, dept_id, year_of_study, subject_id, title, message)
+-- VALUES
+-- (1, 6, NULL, NULL, 'Class Schedule Update',
+--  'Please check the department notice board regularly.');
+
+
+-- ============================================================
+-- 16. ATTENDANCE INSERT EXAMPLE
+-- ============================================================
+
+-- INSERT INTO attendance
+-- (student_id, subject_id, total_classes, attended_classes)
+-- VALUES (1, 31, 30, 26);
+
+
+-- ============================================================
+-- 17. CLUB INSERT EXAMPLE
+-- ============================================================
+
+-- INSERT INTO clubs
+-- (club_name, description, coordinator, is_active)
+-- VALUES
+-- ('Coding Club',
+--  'Programming and technical activities.',
+--  'Faculty Coordinator',
+--  1);
+
+
+-- ============================================================
+-- 18. EVENT INSERT EXAMPLE
+-- ============================================================
+
+-- INSERT INTO events
+-- (event_name, description, event_date, venue, is_active)
+-- VALUES
+-- ('Technical Fest',
+--  'College technical activities.',
+--  '2026-12-10',
+--  'College Auditorium',
+--  1);
+
+
+-- ============================================================
+-- 19. CLUB MEMBERSHIP INSERT EXAMPLE
+-- ============================================================
+
+-- INSERT INTO club_memberships
+-- (student_id, club_id, membership_type)
+-- VALUES (1, 1, 'MEMBER');
+
+
+-- ============================================================
+-- 20. EVENT REGISTRATION INSERT EXAMPLE
+-- ============================================================
+
+-- INSERT INTO event_registrations
+-- (event_id, student_id)
+-- VALUES (1, 1);
+
+
+-- ============================================================
+-- 21. FEEDBACK INSERT EXAMPLE
+-- ============================================================
+
+-- INSERT INTO feedback
+-- (student_id, feedback_message)
+-- VALUES
+-- (1, 'The Campus Connect portal is useful and easy to access.');
+
+
+-- ============================================================
+-- 22. STUDENT UPDATE EXAMPLE
+-- ============================================================
+
+-- UPDATE students
+-- SET mobile_number = '9876543210',
+--     year_of_study = 2,
+--     semester = 3
+-- WHERE student_id = 1;
+
+
+-- ============================================================
+-- 23. FACULTY UPDATE EXAMPLE
+-- ============================================================
+
+-- UPDATE faculty
+-- SET designation = 'Assistant Professor',
+--     email = 'faculty@example.com',
+--     mobile_number = '9876543210'
+-- WHERE faculty_id = 1;
+
+
+-- ============================================================
+-- 24. ATTENDANCE UPDATE EXAMPLE
+-- ============================================================
+
+-- UPDATE attendance
+-- SET total_classes = 30,
+--     attended_classes = 26
+-- WHERE student_id = 1
+-- AND subject_id = 31;
+
+
+-- ============================================================
+-- 25. ANNOUNCEMENT UPDATE EXAMPLE
+-- ============================================================
+
+-- UPDATE faculty_announcements
+-- SET title = 'Internal Cancelled',
+--     message = 'Internal examination has been cancelled.'
+-- WHERE announcement_id = 32;
+
+
+-- ============================================================
+-- 26. CHANGE ANNOUNCEMENT DEPARTMENT
+-- AI = 6, CSE-AIML = 2
+-- Execute only if announcement 32 was intended for AIML.
+-- ============================================================
+
+-- UPDATE faculty_announcements
+-- SET dept_id = 2
+-- WHERE announcement_id = 32;
+
+
+-- ============================================================
+-- 27. ACTIVATE / DEACTIVATE CLUB
+-- ============================================================
+
+-- UPDATE clubs SET is_active = 1 WHERE club_id = 1;
+-- UPDATE clubs SET is_active = 0 WHERE club_id = 1;
+
+
+-- ============================================================
+-- 28. ACTIVATE / DEACTIVATE EVENT
+-- ============================================================
+
+-- UPDATE events SET is_active = 1 WHERE event_id = 1;
+-- UPDATE events SET is_active = 0 WHERE event_id = 1;
+
+
+-- ============================================================
+-- 29. ACTIVATE EXISTING LOGIN ACCOUNT
+-- Does not change its password.
+-- ============================================================
+
+-- UPDATE user_accounts
+-- SET is_active = 1
+-- WHERE username = 'existing_username';
+
+
+-- ============================================================
+-- 30. DESCRIBE ALL TABLES
+-- ============================================================
+
+DESCRIBE departments;
+DESCRIBE sections;
+DESCRIBE subjects;
+DESCRIBE students;
+DESCRIBE faculty;
+DESCRIBE user_accounts;
+DESCRIBE attendance;
+DESCRIBE faculty_announcements;
+DESCRIBE clubs;
+DESCRIBE events;
+DESCRIBE club_memberships;
+DESCRIBE event_registrations;
+DESCRIBE feedback;
+
+
+-- ============================================================
+-- 31. VIEW DEPARTMENTS
+-- ============================================================
+
+SELECT * FROM departments
+ORDER BY dept_id;
+
+
+-- ============================================================
+-- 32. VIEW SECTIONS
+-- ============================================================
+
+SELECT * FROM sections
+ORDER BY dept_id, section_order;
+
+
+-- ============================================================
+-- 33. SUBJECT COUNT BY DEPARTMENT
+-- ============================================================
+
+SELECT
+    d.dept_id,
+    d.dept_name,
+    COUNT(s.subject_id) AS total_subjects
+FROM departments d
+LEFT JOIN subjects s
+    ON s.dept_id = d.dept_id
+GROUP BY d.dept_id, d.dept_name
+ORDER BY d.dept_id;
+
+
+-- ============================================================
+-- 34. VIEW STUDENTS
+-- ============================================================
+
+SELECT * FROM students;
+
+
+-- ============================================================
+-- 35. VIEW FACULTY
+-- ============================================================
+
+SELECT * FROM faculty;
+
+
+-- ============================================================
+-- 36. VIEW EXISTING LOGIN ACCOUNTS
+-- Never display password hashes unnecessarily.
+-- ============================================================
+
+SELECT
+    username,
+    role,
+    student_id,
+    faculty_id,
+    is_active
+FROM user_accounts
+ORDER BY role, username;
+
+
+-- ============================================================
+-- 37. SUBJECT-WISE ATTENDANCE
+-- ============================================================
+
+SELECT
+    s.student_name,
+    sub.subject_name,
+    a.total_classes,
+    a.attended_classes,
+    ROUND(
+        a.attended_classes * 100.0 /
+        NULLIF(a.total_classes, 0),
+        2
+    ) AS attendance_percentage
+FROM attendance a
+JOIN students s
+    ON s.student_id = a.student_id
+JOIN subjects sub
+    ON sub.subject_id = a.subject_id;
+
+
+-- ============================================================
+-- 38. VIEW FACULTY ANNOUNCEMENTS
+-- ============================================================
+
+SELECT
+    a.announcement_id,
+    a.title,
+    a.message,
+    a.dept_id,
+    a.year_of_study,
+    a.subject_id,
+    f.faculty_name
+FROM faculty_announcements a
+JOIN faculty f
+    ON f.faculty_id = a.faculty_id
+ORDER BY a.created_at DESC;
+
+
+-- ============================================================
+-- 39. STUDENT FACULTY MESSAGES
+-- Example: AI department (6), year 2
+-- ============================================================
+
+SELECT
+    a.announcement_id,
+    a.title,
+    a.message,
+    a.created_at,
+    f.faculty_name,
+    f.designation,
+    f.email,
+    f.mobile_number,
+    sub.subject_name,
+    sub.subject_code
+FROM faculty_announcements a
+JOIN faculty f
+    ON f.faculty_id = a.faculty_id
+LEFT JOIN subjects sub
+    ON sub.subject_id = a.subject_id
+WHERE a.dept_id = 6
+AND (
+    a.year_of_study IS NULL
+    OR a.year_of_study = 2
+)
+ORDER BY a.created_at DESC;
+
+
+-- ============================================================
+-- 40. VIEW CLUBS
+-- ============================================================
+
+SELECT * FROM clubs;
+
+
+-- ============================================================
+-- 41. VIEW EVENTS
+-- ============================================================
+
+SELECT * FROM events;
+
+
+-- ============================================================
+-- 42. VIEW STUDENT FEEDBACK
+-- ============================================================
+
+SELECT
+    f.feedback_id,
+    s.student_name,
+    f.feedback_message,
+    f.created_at
+FROM feedback f
+JOIN students s
+    ON s.student_id = f.student_id
+ORDER BY f.created_at DESC;
+
+
+-- ============================================================
+-- 43. TOTAL PROJECT RECORD COUNTS
+-- ============================================================
+
+SELECT 'Departments' AS table_name, COUNT(*) AS total
+FROM departments
+
+UNION ALL
+
+SELECT 'Sections', COUNT(*) FROM sections
+
+UNION ALL
+
+SELECT 'Subjects', COUNT(*) FROM subjects
+
+UNION ALL
+
+SELECT 'Students', COUNT(*) FROM students
+
+UNION ALL
+
+SELECT 'Faculty', COUNT(*) FROM faculty
+
+UNION ALL
+
+SELECT 'User Accounts', COUNT(*) FROM user_accounts
+
+UNION ALL
+
+SELECT 'Attendance', COUNT(*) FROM attendance
+
+UNION ALL
+
+SELECT 'Announcements', COUNT(*) FROM faculty_announcements
+
+UNION ALL
+
+SELECT 'Clubs', COUNT(*) FROM clubs
+
+UNION ALL
+
+SELECT 'Events', COUNT(*) FROM events
+
+UNION ALL
+
+SELECT 'Feedback', COUNT(*) FROM feedback;
+
+
+-- ============================================================
+-- END OF CAMPUS CONNECT SQL REFERENCE
+-- ============================================================
